@@ -1,9 +1,10 @@
 #Method uses Cauchy's root bound theorem, a brute-force mechanism, and the Newton-Raphson method for finding roots of polynomials
 
 import numpy as np
-tol = 0.0000001
-devtol = 1e-12
-dx = 0.001
+tol = 1e-6
+devtol = 1e-6
+dx = 0.0005
+roottol = 5e-2
 sollist = []
 deg = int(input("Enter degree: "))
 coeffs = []
@@ -37,27 +38,33 @@ def df(x):
 
 def newtonraphson(xmid):
     x = xmid
-    for k in range(1000):
+    for k in range(3000):
         y = f(x)
         dy = df(x)
         if abs(dy)<devtol:
-            return None
+            dy=devtol         #Handles near-zero derivatives(likely case of repeated roots)
         xnew = x - (y/dy)
         if abs(xnew-x) < tol:
             return xnew
         x = xnew
     if k == 999:
         return None
+    return x
 
 for x in np.arange(-absbound,absbound,dx):
-    if f(x) * f(x+dx) < 0:
+    root = None
+
+    if f(x) * f(x+dx) < 0: 
         xmid = (x+(x+dx))/2
         root = newtonraphson(xmid)
-        if root != None and abs(f(root))<tol:
-            if len(sollist) == 0 or all(abs(root-sollist[-1])>tol for r in sollist):
-                sollist.append(root)
-            elif abs(f(x)) < tol:
-                sollist.append(root)
+    elif abs(f(x)) < tol and abs(df(x)) < devtol:
+        root = newtonraphson(x)
+        
+
+    if root is not None and abs(f(root))<tol:
+        root = round(root, 2)
+        if all(abs(root-sollist[-1])>roottol for r in sollist):
+            sollist.append(root)
         
 
 for i in range(len(sollist)):
