@@ -30,7 +30,7 @@ def f(x):
     
 def df(x):
     slope = 0
-    for u in range(len(coeffs)):
+    for u in range(len(coeffs) - 1):
         power = deg - u
         slope += power * coeffs[u] * x**(power - 1)
     return slope
@@ -53,8 +53,10 @@ for x in np.arange(-absbound,absbound,dx):
     if f(x) * f(x+dx) < 0:
         xmid = (x+(x+dx))/2
         root = newtonraphson(xmid)
-        if root != None and abs(f(root))<tol and abs(root-xmid)<2:
-            if len(sollist) == 0 or abs(root-sollist[-1])>tol:
+        if root != None and abs(f(root))<tol:
+            if len(sollist) == 0 or all(abs(root-sollist[-1])>tol for r in sollist):
+                sollist.append(root)
+            elif abs(f(x)) < tol:
                 sollist.append(root)
         
 
