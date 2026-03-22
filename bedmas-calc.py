@@ -8,7 +8,7 @@ def tokenizer(expression):
         if char.isdigit() or char == ".":
             current_number += char
 
-        elif char in "+-*/":
+        elif char in "+-*/^()":
             if current_number != "":    
                 tokens.append(float(current_number))
                 current_number = ""
@@ -17,6 +17,42 @@ def tokenizer(expression):
     if current_number != "":
         tokens.append(float(current_number))
     return tokens
+
+def handle_parentheses(tokens):
+    while "(" in tokens:
+        open_index = None
+
+        for i in range(len(tokens)):
+            if tokens[i] == "(":
+                open_index = i
+            elif tokens[i] == ")":
+                close_index = i
+
+                sub_expr = tokens[open_index + 1:close_index]
+                result = eval(sub_expr)
+
+                tokens[open_index:close_index + 1] = [result]
+
+                break
+    return tokens
+
+
+def handle_exp(tokens):
+    i = len(tokens) - 1
+
+    while i >= 0:
+        if tokens[i] == "^":
+            left = tokens[i-1]
+            right = tokens[i+1]
+
+            result = left ** right
+            
+            tokens[i-1:i+2] = [result]
+            
+            i = len(tokens) - 1 #Restart expression iteration
+        else:
+            i-=1
+    return tokens    
 
 def handle_mul_div(tokens):
     i = 0
@@ -59,6 +95,8 @@ def handle_add_sub(tokens):
     return tokens
     
 def eval(tokens):
+    tokens = handle_parentheses(tokens)
+    tokens = handle_exp(tokens)
     tokens = handle_mul_div(tokens)
     tokens = handle_add_sub(tokens)
     return tokens[0]
