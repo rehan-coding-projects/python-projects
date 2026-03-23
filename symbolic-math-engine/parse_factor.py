@@ -19,7 +19,7 @@ class Parser:
 
             node = self.parse_factor()
 
-            if self.tokens[self.pos] != ")" or self.pos >= len(self.tokens):
+            if self.pos >= len(self.tokens) or self.tokens[self.pos] != ")":
                 raise Exception("Expected )")
             self.pos += 1
             return node
