@@ -8,7 +8,7 @@ def main():
     parser = Parser(tokens)
 
     ast = parser.parse_expression()
-
-    print(ast)
+    result = ast.evaluate()
+    print(result)
 
 main()
