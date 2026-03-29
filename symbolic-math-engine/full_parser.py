@@ -1,5 +1,6 @@
 from tokenizer import tokenizer
-from ast_node import Node
+from ast_node import *
+
 
 
 class Parser:
@@ -11,13 +12,18 @@ class Parser:
         current = self.tokens[self.pos]
 
         if isinstance(current, (int, float)):
-            node = Node(current)
+            node = NumNode(current)
             self.pos += 1
             return node
+        elif current == "-":
+            self.pos+=1
+            sepnode = self.parse_factor()
+            
+            return UnaryMinusNode(sepnode)
         elif current == "(":
             self.pos += 1
 
-            node = self.parse_factor()
+            node = self.parse_expression()
 
             if self.pos >= len(self.tokens) or self.tokens[self.pos] != ")":
                 raise Exception("Expected )")
@@ -31,7 +37,7 @@ class Parser:
         if self.pos < len(self.tokens) and self.tokens[self.pos] == "^":
             self.pos += 1
             right = self.parse_power()
-            return Node("^", left, right)
+            return ExpNode(left, right)
 
         return left 
     def parse_term(self):
@@ -42,14 +48,20 @@ class Parser:
             self.pos += 1
 
             right = self.parse_power()
-            node = Node(op, node, right)
+            if op == "*":
+                node = MultNode(node, right)
+            elif op == "/":
+                node = DivNode(node, right)
         return node
     def parse_expression(self):
         node = self.parse_term()
 
         while self.pos < len(self.tokens) and self.tokens[self.pos] in ("+","-"):
-            op = self.token[self.pos]
+            op = self.tokens[self.pos]
             self.pos += 1
             right = self.parse_term()
-            node = Node(op, node, right)
+            if op == "+":
+                node = AddNode(node, right)
+            elif op == "-":
+                node = SubNode(node, right)
         return node
