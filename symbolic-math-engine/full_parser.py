@@ -10,7 +10,6 @@ class Parser:
 
     def parse_factor(self):
         current = self.tokens[self.pos]
-
         if isinstance(current, (int, float)):
             node = NumNode(current)
             self.pos += 1
@@ -18,19 +17,19 @@ class Parser:
         elif current == "-":
             self.pos+=1
             sepnode = self.parse_factor()
-            
             return UnaryMinusNode(sepnode)
         elif current == "(":
             self.pos += 1
-
             node = self.parse_expression()
-
             if self.pos >= len(self.tokens) or self.tokens[self.pos] != ")":
                 raise Exception("Expected )")
             self.pos += 1
             return node
+        elif current.isalpha():
+            self.pos +=1
+            return VariableNode(current)
         else:
-            raise Exception("Invalid syntax")      
+            raise Exception(f"Invalid syntax: {self.tokens}")      
     def parse_power(self):
         left = self.parse_factor()
 
@@ -43,15 +42,23 @@ class Parser:
     def parse_term(self):
         node = self.parse_power()
 
-        while self.pos < len(self.tokens) and self.tokens[self.pos] in ("*","/"):
-            op = self.tokens[self.pos]
-            self.pos += 1
+        while self.pos < len(self.tokens):
+            cur = self.tokens[self.pos]
 
-            right = self.parse_power()
-            if op == "*":
+            if cur in ("*", "/"):
+                op = cur
+                self.pos += 1
+                right = self.parse_power()
+                if op == "*":
+                    node = MultNode(node, right)
+                elif op == "/":
+                    node = DivNode(node, right)
+            elif isinstance(cur, (int,float)) or cur.isalpha() or cur =="(":
+
+                right = self.parse_factor()
                 node = MultNode(node, right)
-            elif op == "/":
-                node = DivNode(node, right)
+            else:
+                break
         return node
     def parse_expression(self):
         node = self.parse_term()
