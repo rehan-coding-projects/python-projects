@@ -19,8 +19,12 @@ def tokenizer(expr):
             tokens.append(int(num))
         
         elif char.isalpha():
-            tokens.append(char)
-            i+=1
+            name = ""
+            while i<len(expr) and expr[i].isalpha():
+                name += expr[i]
+                i+=1
+            tokens.append(name)
+            continue
         
         elif char in "+-*/^()":
             tokens.append(char)
