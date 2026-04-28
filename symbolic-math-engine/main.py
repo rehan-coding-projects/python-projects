@@ -1,13 +1,17 @@
 from tokenizer import tokenizer
 from full_parser import Parser
+import math
 
 
-expr = input("Enter expression : ")
+def evaluate(expr, x=None):
+    tokens = tokenizer(expr)
+    parser = Parser(tokens)
+    ast = parser.parse_expression()
 
-tokens = tokenizer(expr)
-parser = Parser(tokens)
-ast = parser.parse_expression()
-result = ast.evaluate({"x": 4})
-print(tokens)
-print(result)
+    result = ast.evaluate({
+        "x": x,
+        "pi" : math.pi,
+        "e" : math.e
+    })
+    return result
 
