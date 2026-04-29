@@ -3,15 +3,15 @@ from full_parser import Parser
 import math
 
 
-def evaluate(expr, x=None):
+def evaluate(expr, context=None):
+    if context is None:
+        context={}
+    
     tokens = tokenizer(expr)
     parser = Parser(tokens)
     ast = parser.parse_expression()
 
-    result = ast.evaluate({
-        "x": x,
-        "pi" : math.pi,
-        "e" : math.e
-    })
+    result = ast.evaluate(context)
     return result
 
+[]
