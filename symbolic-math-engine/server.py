@@ -1,6 +1,7 @@
 from flask import Flask, request
 from main import evaluate
-
+import math
+from eqsolver import solve_linear
 app = Flask(__name__)
 
 @app.route("/")
@@ -51,6 +52,8 @@ def home():
                     <br>
                     <input name="x" placeholder="Value of x (optional)">
                     <br>
+                    <input name="y" placeholder="Value of y(optional)">
+                    <br>
                     <button type="submit">Compute</button>
                 </form>
             </div>
@@ -61,18 +64,36 @@ def home():
 @app.route("/compute")
 def compute():
     expr = request.args.get("expr")
-    xv = request.args.get("x")
+    x = request.args.get("x")
+    y = request.args.get("y")
 
     # clean x input
-    if xv:
+    if x:
         try:
-            xv = float(xv)
+            x = float(x)
         except:
-            xv = None
+            x = None
     else:
-        xv = None
+        x = None
 
-    result = evaluate(expr, xv)
+    if y:
+        try:
+            y = float(y)
+        except:
+            y= None
+    else:
+        y=None
+
+    context={
+        "x": x,
+        "y": y,
+        "pi" : math.pi,
+        "e" : math.e
+    }
+    if "=" in expr:
+        result=solve_linear(expr)
+    else: 
+        result = evaluate(expr, context)
 
     return f"""
     <html>
