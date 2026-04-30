@@ -1,3 +1,5 @@
+import math
+
 class Node:
     def __init__(self, value, left=None, right=None):
         self.value = value
@@ -50,7 +52,6 @@ class SubNode:
 
 class MultNode:
     def __init__(self, left, right):
-        print("Multiply:", left, right)
         self.left = left
         self.right = right
     def evaluate(self, context={}):
@@ -112,13 +113,33 @@ class VariableNode: #Handles variables and symbolic operations
         self.name = name
     
     def evaluate(self, context={}):
+        print(f"VAR: {self.name}, CTX: {context}")
         if self.name in context:
             return context[self.name]
-        return self
+        
+        raise Exception(f"Undefined variable: {self.name}")
     
     def __repr__(self):
         return self.name
 
-    
+class FunctionNode:
+    def __init__(self, name, arg):
+        self.name = name
+        self.arg = arg
+
+    def evaluate(self,context):
+        val = self.arg.evaluate(context)
+        print("function nnode reached.")
+        if not isinstance(val, (int,float)):
+            raise Exception(f"Function {self.name} got non-numeric values: {val}")
+        if self.name == "sin":
+            return math.sin(val)
+        elif self.name == "cos":
+            return math.cos(val)
+        elif self.name == "log":
+            return math.log(val)
+        else:
+            raise Exception("Unknown function")
 
 #Node("*", Node("+", Node(3), Node(4)), Node(2))
+
