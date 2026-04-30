@@ -63,33 +63,37 @@ def home():
 
 @app.route("/compute")
 def compute():
+    
     expr = request.args.get("expr")
     x = request.args.get("x")
     y = request.args.get("y")
-
-    # clean x input
-    if x:
-        try:
-            x = float(x)
-        except:
-            x = None
-    else:
-        x = None
-
-    if y:
-        try:
-            y = float(y)
-        except:
-            y= None
-    else:
-        y=None
-
+    print("server hit", expr)
+    
     context={
         "x": x,
         "y": y,
         "pi" : math.pi,
         "e" : math.e
     }
+    
+    def resolve(v, context):
+        if v in context:
+            return context[v]
+        try:
+            return float(v)
+        except:
+            return v
+    
+    
+    if x:
+        context["x"] = resolve(x, context)
+    
+
+    if y:
+        context["y"] = resolve(y, context)
+    
+
+    
     if "=" in expr:
         result=solve_linear(expr)
     else: 
@@ -114,4 +118,4 @@ def compute():
     """
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)
