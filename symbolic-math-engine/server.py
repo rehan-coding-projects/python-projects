@@ -1,8 +1,9 @@
 from flask import Flask, request
-from main import evaluate
+from main import *
 import math
-from eqsolver import solve_linear
+from eqsolver import *
 app = Flask(__name__)
+
 
 @app.route("/")
 def home():
@@ -65,13 +66,10 @@ def home():
 def compute():
     
     expr = request.args.get("expr")
-    x = request.args.get("x")
-    y = request.args.get("y")
-    print("server hit", expr)
+    raw_x = request.args.get("x")
+    raw_y = request.args.get("y")
     
     context={
-        "x": x,
-        "y": y,
         "pi" : math.pi,
         "e" : math.e
     }
@@ -84,21 +82,25 @@ def compute():
         except:
             return v
     
+    if raw_x and raw_x.strip():
+        try:
+            context["x"] = float(raw_x)
+        except ValueError:
+            context["x"] = raw_x 
+            
     
-    if x:
-        context["x"] = resolve(x, context)
-    
+    if raw_y and raw_y.strip():
+        try:
+            context["y"] = float(raw_y)
+        except ValueError:
+            context["y"] = raw_y
 
-    if y:
-        context["y"] = resolve(y, context)
+    if raw_x:
+        context["x"] = resolve(raw_x, context)
+    if raw_y:
+        context["y"] = resolve(raw_y, context)
     
-
-    
-    if "=" in expr:
-        result=solve_linear(expr)
-    else: 
-        result = evaluate(expr, context)
-
+    result = process(expr, context)
     return f"""
     <html>
         <head>
