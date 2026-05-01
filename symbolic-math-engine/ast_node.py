@@ -113,11 +113,9 @@ class VariableNode: #Handles variables and symbolic operations
         self.name = name
     
     def evaluate(self, context={}):
-        print(f"VAR: {self.name}, CTX: {context}")
         if self.name in context:
             return context[self.name]
-        
-        raise Exception(f"Undefined variable: {self.name}")
+        return self.name
     
     def __repr__(self):
         return self.name
@@ -129,7 +127,7 @@ class FunctionNode:
 
     def evaluate(self,context):
         val = self.arg.evaluate(context)
-        print("function nnode reached.")
+        
         if not isinstance(val, (int,float)):
             raise Exception(f"Function {self.name} got non-numeric values: {val}")
         if self.name == "sin":
