@@ -42,6 +42,12 @@ class Parser:
         else:
             raise Exception(f"Invalid syntax: {self.tokens}")      
     def parse_power(self):
+        # Look for a minus sign BEFORE the factor
+        if self.pos < len(self.tokens) and self.tokens[self.pos] == "-":
+            self.pos += 1
+            node = self.parse_power() # Recursively handle it
+            return UnaryMinusNode(node)
+            
         left = self.parse_factor()
 
         if self.pos < len(self.tokens) and self.tokens[self.pos] == "^":
@@ -49,10 +55,10 @@ class Parser:
             right = self.parse_power()
             return ExpNode(left, right)
 
-        return left 
+        return left
     def parse_term(self):
-        node = self.parse_power()
-        print(f"[Term] pos={self.pos}, token={self.tokens[self.pos:]}")
+        node = self.parse_power() # Start with power
+        
         while self.pos < len(self.tokens):
             cur = self.tokens[self.pos]
 
@@ -64,11 +70,13 @@ class Parser:
                     node = MultNode(node, right)
                 elif op == "/":
                     node = DivNode(node, right)
-            elif cur =="(" or isinstance(cur, (int,float)) or isinstance(cur, str) and cur.isalpha() and not (self.pos + 1 < len(self.tokens) and self.tokens[self.pos+1] == "<"):
-                right = self.parse_factor()
+            # Implicit Multiplication: Change parse_factor() to parse_power()[cite: 13]
+            elif cur =="(" or isinstance(cur, (int,float)) or (isinstance(cur, str) and cur.isalpha()):
+                right = self.parse_power() # Grab x^2, not just x[cite: 13]
                 node = MultNode(node, right)
             else:
                 break
+        return node
         return node
     def parse_expression(self):
         node = self.parse_term()
