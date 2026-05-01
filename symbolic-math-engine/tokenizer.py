@@ -16,7 +16,10 @@ def tokenizer(expr):
                         raise Exception("Expected 1 decimal only")
                 num += expr[i]
                 i+=1
-            tokens.append(int(num))
+            if "." in num:
+                tokens.append(float(num))
+            else:
+                tokens.append(int(num))
         
         elif char.isalpha():
             name = ""
@@ -26,7 +29,7 @@ def tokenizer(expr):
             tokens.append(name)
             continue
         
-        elif char in "+-*/^()":
+        elif char in "+-*/^()=":
             tokens.append(char)
             i+=1
         
